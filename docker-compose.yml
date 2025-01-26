@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000
+    volumes:
+      - .:/app
+      - /app/node_modules # Ensure local dependencies aren't overwritten
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      PORT: ${PORT}
+      CHOKIDAR_USEPOLLING: "true" # Force polling for file watching
+    command: ["npm", "run", "dev"]
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379" # Map Redis default port
+    command: ["redis-server", "--appendonly", "yes"] # Enable data persistence
